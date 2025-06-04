@@ -41,7 +41,6 @@ class Home extends StatelessWidget {
                 child: Text("Agrega Vehículo"),
               ),
             ),
-
             Row(
               children: [
                 Expanded(
@@ -99,23 +98,23 @@ class Home extends StatelessWidget {
                       showDialog(
                         context: context,
                         builder:
-                            (context) => Modal(
-                              icon: Icons.feedback_rounded,
-                              backgroundColor: Color.fromARGB(
-                                180,
-                                117,
-                                132,
-                                227,
-                              ),
-                              message: "¿Acción realizada exitosamente?",
-                              iconColor: Color.fromARGB(180, 117, 132, 227),
-                              onConfirm: () {
-                                Navigator.pop(context);
-                              },
-                              onCancel: () {
-                                Navigator.pop(context);
-                              },
+                          (context) => Modal(
+                            icon: Icons.feedback_rounded,
+                            backgroundColor: Color.fromARGB(
+                              180,
+                              117,
+                              132,
+                              227,
                             ),
+                            message: "¿Acción realizada exitosamente?",
+                            iconColor: Color.fromARGB(180, 117, 132, 227),
+                            onConfirm: () {
+                              Navigator.pop(context);
+                            },
+                            onCancel: () {
+                              Navigator.pop(context);
+                            },
+                          ),
                       );
                     },
                     child: Text('Feedback'),
