@@ -1,3 +1,5 @@
+import 'package:image_picker/image_picker.dart';
+
 import '../widgets/customBooleanDropdown.dart';
 import '../widgets/customTextFormField.dart';
 import 'package:flutter/material.dart';
@@ -25,6 +27,9 @@ class _AddVehicleState extends State<AddVehicle> {
   bool? incluyeGluaController = false;
   bool? vendidoController = false;
 
+  //Imagenes en memoria 
+  List<XFile>? _mediaFileList = []; 
+
   @override
   void initState() {
     super.initState();
@@ -43,19 +48,30 @@ class _AddVehicleState extends State<AddVehicle> {
     super.dispose();
   }
 
+  void subirVehiculo() {
+    print("Marca: ${marcaController.text}");
+    print("Modelo: ${modeloController.text}");
+    print("Año: ${anioController.text}");
+    print("Millas: ${millasController.text}");
+    print("Precio: ${precioController.text}");
+    print("Descripción: ${descripcionController.text}");
+    print("Incluye GLUA: $incluyeGluaController");
+    print("Vendido: $vendidoController");
+    for (var img in _mediaFileList ?? []) {
+      print("Imagen: ${img.path}");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(
           "Agregar Vehículo",
-          style: TextStyle(
-            fontFamily: 'Montserrat' ,
-            color: Colors.white
-          ),
-        ), 
+          style: TextStyle(fontFamily: 'Montserrat', color: Colors.white),
+        ),
         centerTitle: true,
-        backgroundColor: Color(0xFF417167)
+        backgroundColor: Color(0xFF417167),
       ),
       body: Stack(
         children: [
@@ -115,7 +131,7 @@ class _AddVehicleState extends State<AddVehicle> {
 
                   /// DropDown Menu
                   Container(
-                    color: Colors.transparent, 
+                    color: Colors.transparent,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -134,7 +150,7 @@ class _AddVehicleState extends State<AddVehicle> {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 16), 
+                        const SizedBox(width: 16),
                         Expanded(
                           child: Align(
                             alignment: Alignment.center,
@@ -161,26 +177,35 @@ class _AddVehicleState extends State<AddVehicle> {
                   ),
                   SizedBox(height: 16),
 
-                  CustomUploadImgWidget(),
+                  CustomUploadImgWidget(
+                    onImagesChanged: (imagenes) {
+                      setState(() {
+                        _mediaFileList = imagenes;
+                      });
+                    },
+                  ),
 
                   SizedBox(height: 16),
                   ElevatedButton(
                     style: ButtonStyle(
-                      backgroundColor: WidgetStatePropertyAll<Color>(Colors.green),
-                          shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
-                          RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5),
-                          ),
+                      backgroundColor: WidgetStatePropertyAll<Color>(
+                        Colors.green,
+                      ),
+                      shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5),
                         ),
+                      ),
                     ),
                     onPressed: () {
                       //Logica para subir a la web
+                      subirVehiculo();
                     },
                     child: Text(
                       "Subir a la web",
                       style: TextStyle(
                         color: const Color.fromARGB(255, 255, 255, 255),
-                        fontFamily: 'Montserrat' ,
+                        fontFamily: 'Montserrat',
                       ),
                     ),
                   ),
