@@ -1,9 +1,18 @@
-import 'package:image_picker/image_picker.dart';
+import 'dart:ffi';
 
+import 'package:flutter/material.dart';
+import 'package:programacion_movil_proyecto/model/Cars.dart';
+import 'package:programacion_movil_proyecto/widgets/modal.dart';
+//widgets
 import '../widgets/customBooleanDropdown.dart';
 import '../widgets/customTextFormField.dart';
-import 'package:flutter/material.dart';
 import '../widgets/customUploadImgWidget.dart';
+// dependency
+import 'package:image_picker/image_picker.dart';
+
+// Adapters
+import '../adapters/cloudinary.dart';
+import '../adapters/firebase.dart';
 
 class AddVehicle extends StatefulWidget {
   const AddVehicle({super.key});
@@ -14,6 +23,9 @@ class AddVehicle extends StatefulWidget {
 
 class _AddVehicleState extends State<AddVehicle> {
   final _formKey = GlobalKey<FormState>();
+  //instances
+  CloudinaryService cloudinaryService = CloudinaryService();
+  FirebaseService firebaseService = FirebaseService();
 
   // Controladores
   final marcaController = TextEditingController();
@@ -27,8 +39,12 @@ class _AddVehicleState extends State<AddVehicle> {
   bool? incluyeGluaController = false;
   bool? vendidoController = false;
 
-  //Imagenes en memoria 
-  List<XFile>? _mediaFileList = []; 
+  //Imagenes en memoria y URLs
+  List<XFile>? _mediaFileList = []; // URL en memoria para subir
+  List<String>? _mediaFileListCloudinary = []; //  URL en la nube
+
+  //bandera
+  bool _isUploading = false;
 
   @override
   void initState() {
@@ -48,7 +64,7 @@ class _AddVehicleState extends State<AddVehicle> {
     super.dispose();
   }
 
-  void subirVehiculo() {
+  Future<void> subirVehiculo() async {
     print("Marca: ${marcaController.text}");
     print("Modelo: ${modeloController.text}");
     print("Año: ${anioController.text}");
@@ -57,8 +73,97 @@ class _AddVehicleState extends State<AddVehicle> {
     print("Descripción: ${descripcionController.text}");
     print("Incluye GLUA: $incluyeGluaController");
     print("Vendido: $vendidoController");
+
     for (var img in _mediaFileList ?? []) {
       print("Imagen: ${img.path}");
+    }
+
+    if (_mediaFileList != null && _mediaFileList!.isNotEmpty) {
+      setState(() {
+        _isUploading = true;
+      });
+
+      try {
+        _mediaFileListCloudinary = await cloudinaryService
+            .uploadImagesAndGetUrl(_mediaFileList!);
+
+        print("URLs desde Cloudinary:");
+        for (var url in _mediaFileListCloudinary!) {
+          print(url);
+        }
+
+        // subir a firebase
+        Car CarsToUploadFirebase = Car(
+          imgUrl: _mediaFileListCloudinary!,
+          brand: marcaController.text.trim(),
+          model: modeloController.text.trim(),
+          price: double.parse(precioController.text),
+          year: int.parse(anioController.text),
+          desc: descripcionController.text,
+          miles: int.parse(millasController.text),
+          towTruck: incluyeGluaController!,
+          sold: vendidoController!,
+        );
+
+        firebaseService.uploadDataToFirebase(CarsToUploadFirebase, context);
+
+        // Mostrar snackbar de éxito // cambiar a la alert
+        if (context.mounted) {
+          showDialog(
+            context: context,
+            builder:
+                (context) => Modal(
+                  icon: Icons.check,
+                  backgroundColor: const Color.fromARGB(180, 117, 132, 227),
+                  message:
+                      "Coche subido a la web Exitosamente, desea subir otro vehículo ?",
+                  iconColor: const Color.fromARGB(180, 117, 132, 227),
+                  onConfirm: () {
+                    Navigator.pop(context);
+                    // Limpiar campos aquí
+                    marcaController.clear();
+                    modeloController.clear();
+                    anioController.clear();
+                    millasController.clear();
+                    precioController.clear();
+                    descripcionController.clear();
+                    
+                    setState(() {
+                      _mediaFileList!.clear(); 
+                      _mediaFileListCloudinary !.clear(); 
+                    });
+
+                  },
+                  onCancel: () {
+                    Navigator.pop(context);
+                    Navigator.pop(context); // Vuelve a la página anterior
+                  },
+                ),
+          );
+        }
+      } catch (e) {
+        print(" Error al subir imágenes: $e");
+
+        if (context.mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Error al subir imágenes')));
+        }
+      } finally {
+        if (mounted) {
+          setState(() {
+            _isUploading = false;
+          });
+        }
+      }
+    } else {
+      print("No hay imágenes seleccionadas.");
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Por favor selecciona imágenes')),
+        );
+      }
     }
   }
 
@@ -197,9 +302,11 @@ class _AddVehicleState extends State<AddVehicle> {
                         ),
                       ),
                     ),
-                    onPressed: () {
-                      //Logica para subir a la web
+                   onPressed: () {
+                    if (_formKey.currentState!.validate()) {
                       subirVehiculo();
+                    }
+
                     },
                     child: Text(
                       "Subir a la web",
@@ -213,6 +320,26 @@ class _AddVehicleState extends State<AddVehicle> {
               ),
             ),
           ),
+          //loading screen 
+          if (_isUploading)
+            Positioned.fill(
+              child: Container(
+                color: Colors.black45, 
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: const [
+                      CircularProgressIndicator(color: Colors.white),
+                      SizedBox(height: 16),
+                      Text(
+                        'Subiendo imágenes...',
+                        style: TextStyle(color: Colors.white, fontSize: 16),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
     );
