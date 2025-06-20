@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "742381579256",
+    "project_id": "importacionesmaradiaga-6698e",
+    "storage_bucket": "importacionesmaradiaga-6698e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:742381579256:android:d024b820f29d3e223c040d",
+        "android_client_info": {
+          "package_name": "com.example.programacion_movil_proyecto"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCkSKvgCA2-eyR2h1rHJOPkyOoziS95paQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -36,6 +36,9 @@ dependencies:
   cupertino_icons: ^1.0.8
   image_picker: ^1.1.2
   reorderable_grid_view: ^2.2.8
+  http: ^1.4.0
+  firebase_core: ^3.14.0
+  cloud_firestore: ^5.6.9
 
 dev_dependencies:
   flutter_test:
