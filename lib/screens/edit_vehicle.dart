@@ -1,9 +1,11 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 class EditVehicle extends StatefulWidget {
   final Map<String, dynamic> vehicle;
 
-  const EditVehicle({Key? key, required this.vehicle}) : super(key: key);
+  const EditVehicle({super.key, required this.vehicle});
 
   @override
   _EditVehicleState createState() => _EditVehicleState();
@@ -15,6 +17,8 @@ class _EditVehicleState extends State<EditVehicle> {
   late TextEditingController descripcionController;
   late TextEditingController precioController;
 
+  String? imagePath;
+
   @override
   void initState() {
     super.initState();
@@ -22,6 +26,7 @@ class _EditVehicleState extends State<EditVehicle> {
     anioController = TextEditingController(text: widget.vehicle['anio']);
     descripcionController = TextEditingController(text: widget.vehicle['descripcion']);
     precioController = TextEditingController(text: widget.vehicle['precio']);
+    imagePath = widget.vehicle['imageUrl'];
   }
 
   @override
@@ -33,11 +38,22 @@ class _EditVehicleState extends State<EditVehicle> {
     super.dispose();
   }
 
+  Future<void> actualizarFoto() async {
+    final picker = ImagePicker();
+    final pickedImage = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedImage != null) {
+      setState(() {
+        imagePath = pickedImage.path;
+      });
+    }
+  }
+
   void saveChanges() {
     final updatedVehicle = {
-      'marca': widget.vehicle['marca'], // no editable
-      'modelo': widget.vehicle['modelo'], // no editable
-      'imageUrl': widget.vehicle['imageUrl'],
+      'marca': widget.vehicle['marca'],
+      'modelo': widget.vehicle['modelo'],
+      'imageUrl': imagePath ?? widget.vehicle['imageUrl'],
       'millas': millasController.text,
       'anio': anioController.text,
       'descripcion': descripcionController.text,
@@ -48,20 +64,33 @@ class _EditVehicleState extends State<EditVehicle> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isLocalImage = imagePath != null && !imagePath!.startsWith('http');
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Actualizar Catálogo'),
         centerTitle: true,
         backgroundColor: Color(0xFF417167),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
+            Text('Foto del vehículo:', style: TextStyle(fontWeight: FontWeight.bold)),
+            SizedBox(height: 10),
+            Container(
+              width: 150,
+              height: 150,
+              decoration: BoxDecoration(border: Border.all(color: Colors.grey)),
+              child: imagePath == null
+                  ? Icon(Icons.image, size: 80, color: Colors.grey)
+                  : isLocalImage
+                      ? Image.file(File(imagePath!), fit: BoxFit.cover)
+                      : Image.network(imagePath!, fit: BoxFit.cover),
+            ),
+            SizedBox(height: 10),
             ElevatedButton(
-              onPressed: () {
-                // Lógica para actualizar la foto
-              },
+              onPressed: actualizarFoto,
               child: Text('Actualizar foto'),
             ),
             SizedBox(height: 16),
