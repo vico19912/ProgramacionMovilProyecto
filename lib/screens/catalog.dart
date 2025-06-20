@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'edit_vehicle.dart';
-import "../screens/add_vehicle.dart";
+import "add_vehicle.dart";
 
 class CatalogScreen extends StatefulWidget {
-  const CatalogScreen({Key? key}) : super(key: key);
+  const CatalogScreen({super.key});
 
   @override
   _CatalogScreenState createState() => _CatalogScreenState();
@@ -185,9 +185,9 @@ class _CatalogScreenState extends State<CatalogScreen> {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: addNewVehicle, // Abre el formulario para agregar un vehículo
+        onPressed: addNewVehicle,
+        backgroundColor: Color(0xFF417167), // Abre el formulario para agregar un vehículo
         child: Icon(Icons.add),
-        backgroundColor: Color(0xFF417167),
       ),
     );
   }
