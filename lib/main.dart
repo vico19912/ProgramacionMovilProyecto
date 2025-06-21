@@ -4,8 +4,6 @@ import 'package:programacion_movil_proyecto/screens/catalog.dart';
 import 'package:programacion_movil_proyecto/widgets/modal.dart';
 import './screens/edit_vehicle.dart';
 import './screens/login_screen.dart';
-
-//firebase Packages 
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
@@ -147,7 +145,6 @@ class Home extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              //Botones para ver pantallas
               Center(
                 child: ElevatedButton(
                   onPressed: () {

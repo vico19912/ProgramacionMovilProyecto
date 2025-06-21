@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'catalog.dart'; 
+import 'package:firebase_auth/firebase_auth.dart'; 
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -12,21 +12,43 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  bool _isLoading = false;
 
-  void _login() {
-    if (_formKey.currentState!.validate()) {
-      // logica de autenticación.
-      // Por ahora, solo imprimimos los valores y navegamos.
-      String email = _emailController.text;
-      String password = _passwordController.text;
-      print('Email: $email');
-      print('Password: $password');
+  Future<void> _login() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
 
-      // Simula un login exitoso y navega a la pantalla de catálogo
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const CatalogScreen()),
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
       );
+    } on FirebaseAuthException catch (e) {
+      String message;
+      if (e.code == 'user-not-found') {
+        message = 'No se encontró un usuario con ese correo.';
+      } else if (e.code == 'wrong-password') {
+        message = 'Contraseña incorrecta.';
+      } else {
+        message = 'Ocurrió un error. Por favor, inténtalo de nuevo.';
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -43,12 +65,11 @@ class _LoginScreenState extends State<LoginScreen> {
       appBar: AppBar(
         title: const Text('Login'),
         centerTitle: true,
-        backgroundColor: const Color(0xFF417167), 
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Center(
-          child: SingleChildScrollView( 
+          child: SingleChildScrollView(
             child: Form(
               key: _formKey,
               child: Column(
@@ -61,7 +82,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF417167),
+                      color: Theme.of(context).primaryColor,
                     ),
                   ),
                   const SizedBox(height: 32.0),
@@ -69,20 +90,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     controller: _emailController,
                     decoration: InputDecoration(
                       labelText: 'Correo Electrónico',
-                      hintText: 'ejemplo@correo.com',
                       prefixIcon: Icon(Icons.email_outlined),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
                       ),
-                      filled: true,
-                      fillColor: Colors.grey[50],
                     ),
                     keyboardType: TextInputType.emailAddress,
                     validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Por favor ingrese su correo electrónico';
-                      }
-                      if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                      if (value == null || value.isEmpty || !value.contains('@')) {
                         return 'Por favor ingrese un correo válido';
                       }
                       return null;
@@ -93,39 +108,33 @@ class _LoginScreenState extends State<LoginScreen> {
                     controller: _passwordController,
                     decoration: InputDecoration(
                       labelText: 'Contraseña',
-                      hintText: 'Ingrese su contraseña',
                       prefixIcon: Icon(Icons.lock_outline),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
                       ),
-                      filled: true,
-                      fillColor: Colors.grey[50],
                     ),
                     obscureText: true,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Por favor ingrese su contraseña';
                       }
-                      if (value.length < 6) {
-                        return 'La contraseña debe tener al menos 6 caracteres';
-                      }
                       return null;
                     },
                   ),
                   const SizedBox(height: 24.0),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF417167),
-                      padding: const EdgeInsets.symmetric(vertical: 16.0),
-                      textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12.0),
-                      ),
-                      elevation: 5,
-                    ),
-                    onPressed: _login,
-                    child: const Text('Ingresar', style: TextStyle(color: Colors.white)),
-                  ),
+                  _isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16.0),
+                            textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12.0),
+                            ),
+                          ),
+                          onPressed: _login,
+                          child: const Text('Ingresar'),
+                        ),
                 ],
               ),
             ),

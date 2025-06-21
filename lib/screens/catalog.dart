@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'edit_vehicle.dart';
 import "add_vehicle.dart";
 
@@ -6,7 +7,7 @@ class CatalogScreen extends StatefulWidget {
   const CatalogScreen({super.key});
 
   @override
-  _CatalogScreenState createState() => _CatalogScreenState();
+  State<CatalogScreen> createState() => _CatalogScreenState();
 }
 
 class _CatalogScreenState extends State<CatalogScreen> {
@@ -19,7 +20,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
       'descripcion': 'Estacionario no trae llave',
       'precio': 'Lps.220,000',
       'imageUrl':
-          'https://res.cloudinary.com/dtpkeixv3/image/upload/v1747195917/20250513_221156/f3dlx4uiik6cht6l4c4v.jpg', // Aqui lo vamos a reemplazar con imágenes reales
+          'https://res.cloudinary.com/dtpkeixv3/image/upload/v1747195917/20250513_221156/f3dlx4uiik6cht6l4c4v.jpg',
     },
     {
       'marca': 'Kia SORENTO',
@@ -29,165 +30,178 @@ class _CatalogScreenState extends State<CatalogScreen> {
       'descripcion': 'Enciende y camina',
       'precio': 'Lps.155,000',
       'imageUrl':
-          'https://res.cloudinary.com/dtpkeixv3/image/upload/v1746157361/20250501_214240/avhpk7bhngwchtr4lzuu.jpg', // Aqui lo vamos a reemplazar con imágenes reales
+          'https://res.cloudinary.com/dtpkeixv3/image/upload/v1746157361/20250501_214240/avhpk7bhngwchtr4lzuu.jpg',
     },
   ];
 
   void deleteVehicle(int index) {
     showDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            content: Text('¿Está seguro que desea eliminar este registro?'),
-            actions: [
-              TextButton(
-                child: Text('Cancelar'),
-                onPressed: () => Navigator.pop(context),
-              ),
-              TextButton(
-                child: Text('Eliminar', style: TextStyle(color: Colors.orange)),
-                onPressed: () {
-                  setState(() {
-                    vehicles.removeAt(index);
-                  });
-                  Navigator.pop(context);
-                },
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        title: const Text('Confirmar Eliminación'),
+        content: const Text('¿Estás seguro de que quieres eliminar este vehículo?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancelar'),
           ),
+          TextButton(
+            onPressed: () {
+              setState(() {
+                vehicles.removeAt(index);
+              });
+              Navigator.of(context).pop();
+            },
+            child: const Text('Eliminar', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
     );
   }
 
-  void viewVehicle(int index) {
-    showDialog(
-      context: context,
-      builder:
-          (_) => AlertDialog(
-            title: Text(vehicles[index]['marca']),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Millas Recorridas: ${vehicles[index]['millas']}'),
-                Text('Año: ${vehicles[index]['anio']}'),
-                Text('Descripción: ${vehicles[index]['descripcion']}'),
-                Text('Precio: ${vehicles[index]['precio']}'),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text('Cerrar'),
-              ),
-            ],
-          ),
-    );
-  }
-
-  void editVehicle(int index) async {
-    final updatedVehicle = await Navigator.push(
+  void editVehicle(int index) {
+    Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => EditVehicle(vehicle: vehicles[index]),
       ),
     );
-
-    if (updatedVehicle != null) {
-      setState(() {
-        vehicles[index] = updatedVehicle;
-      });
-    }
   }
 
-  void addNewVehicle() async {
-    final newVehicle = await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => AddVehicle()),
+  void viewVehicle(int index) {
+    final vehicle = vehicles[index];
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(vehicle['marca']),
+        content: SingleChildScrollView(
+          child: ListBody(
+            children: <Widget>[
+              Image.network(
+                vehicle['imageUrl'],
+                errorBuilder: (context, error, stackTrace) => const Icon(Icons.image, size: 100),
+              ),
+              const SizedBox(height: 10),
+              Text('Modelo: ${vehicle['modelo']}'),
+              Text('Año: ${vehicle['anio']}'),
+              Text('Millas: ${vehicle['millas']}'),
+              Text('Precio: ${vehicle['precio']}'),
+              const SizedBox(height: 8),
+              Text('Descripción: ${vehicle['descripcion']}'),
+            ],
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+            child: const Text('Cerrar'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      ),
     );
-
-    if (newVehicle != null) {
-      setState(() {
-        vehicles.add(newVehicle);
-      });
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Catálogo'),
-        centerTitle: true,
-        backgroundColor: Color(0xFF417167),
+        title: const Text('Catálogo de Vehículos'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: 'Cerrar Sesión',
+            onPressed: () async {
+              await FirebaseAuth.instance.signOut();
+            },
+          ),
+        ],
       ),
       body: ListView.builder(
-        padding: EdgeInsets.all(10),
         itemCount: vehicles.length,
         itemBuilder: (context, index) {
           final vehicle = vehicles[index];
           return Card(
-            margin: EdgeInsets.symmetric(vertical: 10),
-            child: Column(
-              children: [
-                ListTile(
-                  leading: Image.network(
-                    vehicle['imageUrl'],
-                    width: 70,
-                    height: 70,
-                    fit: BoxFit.cover,
+            margin: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
+            elevation: 4,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8.0),
+                    child: Image.network(
+                      vehicle['imageUrl'],
+                      height: 180,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          height: 180,
+                          color: Colors.grey[200],
+                          child: const Icon(Icons.directions_car, size: 60, color: Colors.grey),
+                        );
+                      },
+                    ),
                   ),
-                  title: Text(
+                  const SizedBox(height: 12),
+                  Text(
                     vehicle['marca'],
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  const SizedBox(height: 8),
+                  Text(
+                    vehicle['precio'],
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text('Año: ${vehicle['anio']} | Millas: ${vehicle['millas']}'),
+                  const Divider(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      Text('Millas Recorridas: ${vehicle['millas']}'),
-                      Text('Año: ${vehicle['anio']}'),
-                      Text('Descripción: ${vehicle['descripcion']}'),
-                      Text('Precio: ${vehicle['precio']}'),
+                      TextButton.icon(
+                        icon: const Icon(Icons.visibility_outlined),
+                        label: const Text('Ver'),
+                        onPressed: () => viewVehicle(index),
+                      ),
+                      TextButton.icon(
+                        icon: const Icon(Icons.edit_outlined),
+                        label: const Text('Editar'),
+                        onPressed: () => editVehicle(index),
+                      ),
+                      TextButton.icon(
+                        icon: Icon(Icons.delete_outline, color: Colors.red.shade700),
+                        label: Text('Eliminar', style: TextStyle(color: Colors.red.shade700)),
+                        onPressed: () => deleteVehicle(index),
+                      ),
                     ],
-                  ),
-                ),
-                SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    IconButton(
-                      icon: Icon(
-                        Icons.remove_red_eye,
-                        color: Colors.blue,
-                        size: 30,
-                      ),
-                      onPressed: () => viewVehicle(index),
-                    ),
-                    SizedBox(width: 20),
-                    IconButton(
-                      icon: Icon(
-                        Icons.edit,
-                        color: Colors.yellow[700],
-                        size: 30,
-                      ),
-                      onPressed: () => editVehicle(index),
-                    ),
-                    SizedBox(width: 20),
-                    IconButton(
-                      icon: Icon(Icons.delete, color: Colors.red, size: 30),
-                      onPressed: () => deleteVehicle(index),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 10),
-              ],
+                  )
+                ],
+              ),
             ),
           );
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: addNewVehicle,
-        backgroundColor: Color(0xFF417167), // Abre el formulario para agregar un vehículo
-        child: Icon(Icons.add),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const AddVehicle()),
+          );
+        },
+        tooltip: 'Añadir Vehículo',
+        child: const Icon(Icons.add),
       ),
     );
   }
