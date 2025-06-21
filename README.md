@@ -18,3 +18,7 @@ samples, guidance on mobile development, and a full API reference.
 =======
 # ProgramacionMovilProyecto
 Proyecto de la clase de programacion movil
+
+Test User
+- Email: testing@test.com   
+- Password: 123Cambiar

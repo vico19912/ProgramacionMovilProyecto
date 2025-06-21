@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart'; 
+import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -18,6 +18,9 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!_formKey.currentState!.validate()) {
       return;
     }
+    if (_isLoading) {
+      return;
+    }
 
     setState(() {
       _isLoading = true;
@@ -28,23 +31,20 @@ class _LoginScreenState extends State<LoginScreen> {
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
+
     } on FirebaseAuthException catch (e) {
-      String message;
-      if (e.code == 'user-not-found') {
-        message = 'No se encontró un usuario con ese correo.';
-      } else if (e.code == 'wrong-password') {
-        message = 'Contraseña incorrecta.';
-      } else {
-        message = 'Ocurrió un error. Por favor, inténtalo de nuevo.';
+      String message = 'Ocurrió un error. Por favor, inténtalo de nuevo.';
+      if (e.code == 'user-not-found' || e.code == 'wrong-password' || e.code == 'invalid-credential') {
+        message = 'El correo o la contraseña son incorrectos.';
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message),
-          backgroundColor: Colors.red,
-        ),
-      );
-    } finally {
+      
       if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(message),
+            backgroundColor: Colors.red,
+          ),
+        );
         setState(() {
           _isLoading = false;
         });
@@ -90,7 +90,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     controller: _emailController,
                     decoration: InputDecoration(
                       labelText: 'Correo Electrónico',
-                      prefixIcon: Icon(Icons.email_outlined),
+                      prefixIcon: const Icon(Icons.email_outlined),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
                       ),
@@ -108,7 +108,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     controller: _passwordController,
                     decoration: InputDecoration(
                       labelText: 'Contraseña',
-                      prefixIcon: Icon(Icons.lock_outline),
+                      prefixIcon: const Icon(Icons.lock_outline),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12.0),
                       ),
