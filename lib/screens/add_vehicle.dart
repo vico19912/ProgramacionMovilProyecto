@@ -52,7 +52,7 @@ class _AddVehicleState extends State<AddVehicle> {
         'vendido': vendidoController,
       };
 
-      Navigator.pop(context, newVehicle); // 👈 Esto es lo que faltaba
+      Navigator.pop(context, newVehicle); 
     }
   }
 

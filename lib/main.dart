@@ -44,7 +44,7 @@ class MyApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      home: const InitialNavigationScreen(), 
+      home: const LoginScreen()//const InitialNavigationScreen(), 
     );
   }
 }

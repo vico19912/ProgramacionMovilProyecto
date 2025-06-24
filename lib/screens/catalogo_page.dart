@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
+    
 class CatalogoPage extends StatelessWidget {
   const CatalogoPage({super.key});
 
@@ -10,10 +12,11 @@ class CatalogoPage extends StatelessWidget {
       appBar: AppBar(
         centerTitle: true,
         leading: Builder(
-          builder: (context) => IconButton(
-            icon: const Icon(Icons.menu),
-            onPressed: () => Scaffold.of(context).openDrawer(),
-          ),
+          builder:
+              (context) => IconButton(
+                icon: const Icon(Icons.menu),
+                onPressed: () => Scaffold.of(context).openDrawer(),
+              ),
         ),
         title: Image.asset('assets/logo.png', height: 40),
         backgroundColor: Colors.green,
@@ -41,7 +44,25 @@ class CatalogoPage extends StatelessWidget {
     );
   }
 
-  Widget marcaTile(BuildContext context, String nombre, String img, int cantidad) {
+  void getData() async {
+  final firestore = FirebaseFirestore.instance;
+
+  try {
+    final snapshot = await firestore.collection('Cars').get();
+
+    for (var doc in snapshot.docs) {
+      print('Nombre: ${doc['nombre']}');
+    }
+  } catch (e) {
+    print('Error al obtener datos: $e');
+  }
+
+  Widget marcaTile(
+    BuildContext context,
+    String nombre,
+    String img,
+    int cantidad,
+  ) {
     return GestureDetector(
       onTap: () => Navigator.pushNamed(context, '/vehiculos'),
       child: Column(

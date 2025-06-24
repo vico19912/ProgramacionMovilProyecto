@@ -22,11 +22,11 @@ class _EditVehicleState extends State<EditVehicle> {
   @override
   void initState() {
     super.initState();
-    millasController = TextEditingController(text: widget.vehicle['millas']);
-    anioController = TextEditingController(text: widget.vehicle['anio']);
-    descripcionController = TextEditingController(text: widget.vehicle['descripcion']);
-    precioController = TextEditingController(text: widget.vehicle['precio']);
-    imagePath = widget.vehicle['imageUrl'];
+    millasController = TextEditingController(text: widget.vehicle['miles'].toString());
+    anioController = TextEditingController(text: widget.vehicle['year'].toString());
+    descripcionController = TextEditingController(text: widget.vehicle['desc']);
+    precioController = TextEditingController(text: widget.vehicle['price'].toString());
+    imagePath = widget.vehicle['imgUrl'][0];
   }
 
   @override
@@ -51,9 +51,9 @@ class _EditVehicleState extends State<EditVehicle> {
 
   void saveChanges() {
     final updatedVehicle = {
-      'marca': widget.vehicle['marca'],
-      'modelo': widget.vehicle['modelo'],
-      'imageUrl': imagePath ?? widget.vehicle['imageUrl'],
+      'marca': widget.vehicle['brand'],
+      'modelo': widget.vehicle['model'],
+      'imageUrl': imagePath ?? widget.vehicle['imgUrl'][0],
       'millas': millasController.text,
       'anio': anioController.text,
       'descripcion': descripcionController.text,

@@ -40,7 +40,7 @@ class ToyotaScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(5),
                 image: DecorationImage(
-                  image: NetworkImage(hondaCars[index]['imagen']!),
+                  image: NetworkImage(''),
                   fit: BoxFit.cover,
                 ),
               ),

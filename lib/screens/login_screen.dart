@@ -15,14 +15,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _login() {
     if (_formKey.currentState!.validate()) {
-      // logica de autenticación.
-      // Por ahora, solo imprimimos los valores y navegamos.
       String email = _emailController.text;
       String password = _passwordController.text;
-      print('Email: $email');
-      print('Password: $password');
 
-      // Simula un login exitoso y navega a la pantalla de catálogo
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const CatalogScreen()),

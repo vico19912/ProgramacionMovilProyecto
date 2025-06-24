@@ -1,4 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:programacion_movil_proyecto/screens/CarDetails.dart';
+import 'package:programacion_movil_proyecto/screens/toyota.dart';
 import 'edit_vehicle.dart';
 import "add_vehicle.dart";
 
@@ -10,28 +13,32 @@ class CatalogScreen extends StatefulWidget {
 }
 
 class _CatalogScreenState extends State<CatalogScreen> {
-  List<Map<String, dynamic>> vehicles = [
-    {
-      'marca': 'HONDA CRV',
-      'modelo': 'CRV',
-      'millas': '121,234',
-      'anio': '2015',
-      'descripcion': 'Estacionario no trae llave',
-      'precio': 'Lps.220,000',
-      'imageUrl':
-          'https://res.cloudinary.com/dtpkeixv3/image/upload/v1747195917/20250513_221156/f3dlx4uiik6cht6l4c4v.jpg', // Aqui lo vamos a reemplazar con imágenes reales
-    },
-    {
-      'marca': 'Kia SORENTO',
-      'modelo': 'SORENTO',
-      'millas': '170,095',
-      'anio': '2016',
-      'descripcion': 'Enciende y camina',
-      'precio': 'Lps.155,000',
-      'imageUrl':
-          'https://res.cloudinary.com/dtpkeixv3/image/upload/v1746157361/20250501_214240/avhpk7bhngwchtr4lzuu.jpg', // Aqui lo vamos a reemplazar con imágenes reales
-    },
-  ];
+  List<Map<String, dynamic>> vehicles = [];
+  late Future<void> _loadVehicles;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadVehicles = getData();
+  }
+
+  Future<void> getData() async {
+    final firestore = FirebaseFirestore.instance;
+
+    try {
+      final snapshot = await firestore.collection('Cars').get();
+
+      final datos =
+          snapshot.docs.map((doc) {
+            final data = doc.data();
+            return data;
+          }).toList();
+      print(datos[0]['imageUrl']);
+      vehicles = datos;
+    } catch (e) {
+      print('Error al obtener datos: $e');
+    }
+  }
 
   void deleteVehicle(int index) {
     showDialog(
@@ -58,20 +65,26 @@ class _CatalogScreenState extends State<CatalogScreen> {
     );
   }
 
-  void viewVehicle(int index) {
-    showDialog(
+  void viewVehicle(int index) async {
+    final viewVehicle = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CarDetailScreen(car: vehicles[index]),
+      ),
+    );
+    /* showDialog(
       context: context,
       builder:
           (_) => AlertDialog(
-            title: Text(vehicles[index]['marca']),
+            title: Text(vehicles[index]['brand']),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Millas Recorridas: ${vehicles[index]['millas']}'),
-                Text('Año: ${vehicles[index]['anio']}'),
-                Text('Descripción: ${vehicles[index]['descripcion']}'),
-                Text('Precio: ${vehicles[index]['precio']}'),
+                Text('Millas Recorridas: ${vehicles[index]['miles']}'),
+                Text('Año: ${vehicles[index]['year']}'),
+                Text('Descripción: ${vehicles[index]['desc']}'),
+                Text('Precio: ${vehicles[index]['price']}'),
               ],
             ),
             actions: [
@@ -81,7 +94,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
               ),
             ],
           ),
-    );
+    ); */
   }
 
   void editVehicle(int index) async {
@@ -120,73 +133,84 @@ class _CatalogScreenState extends State<CatalogScreen> {
         centerTitle: true,
         backgroundColor: Color(0xFF417167),
       ),
-      body: ListView.builder(
-        padding: EdgeInsets.all(10),
-        itemCount: vehicles.length,
-        itemBuilder: (context, index) {
-          final vehicle = vehicles[index];
-          return Card(
-            margin: EdgeInsets.symmetric(vertical: 10),
-            child: Column(
-              children: [
-                ListTile(
-                  leading: Image.network(
-                    vehicle['imageUrl'],
-                    width: 70,
-                    height: 70,
-                    fit: BoxFit.cover,
-                  ),
-                  title: Text(
-                    vehicle['marca'],
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Millas Recorridas: ${vehicle['millas']}'),
-                      Text('Año: ${vehicle['anio']}'),
-                      Text('Descripción: ${vehicle['descripcion']}'),
-                      Text('Precio: ${vehicle['precio']}'),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+      body: FutureBuilder(
+        future: _loadVehicles,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          }
+
+          if (vehicles.isEmpty) {
+            return Center(child: Text('No hay vehículos disponibles.'));
+          }
+
+          return ListView.builder(
+            padding: EdgeInsets.all(10),
+            itemCount: vehicles.length,
+            itemBuilder: (context, index) {
+              final vehicle = vehicles[index];
+              return Card(
+                margin: EdgeInsets.symmetric(vertical: 10),
+                child: Column(
                   children: [
-                    IconButton(
-                      icon: Icon(
-                        Icons.remove_red_eye,
-                        color: Colors.blue,
-                        size: 30,
+                    ListTile(
+                      leading: (vehicle['imgUrl'] != null && vehicle['imgUrl'].isNotEmpty)
+                          ? Image.network(
+                              vehicle['imgUrl'][0],
+                              width: 70,
+                              height: 70,
+                              fit: BoxFit.cover,
+                            )
+                          : Icon(Icons.image_not_supported, size: 70),
+                                            title: Text(
+                        vehicle['brand'],
+                        style: TextStyle(fontWeight: FontWeight.bold),
                       ),
-                      onPressed: () => viewVehicle(index),
-                    ),
-                    SizedBox(width: 20),
-                    IconButton(
-                      icon: Icon(
-                        Icons.edit,
-                        color: Colors.yellow[700],
-                        size: 30,
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Millas Recorridas: ${vehicle['miles']}'),
+                          Text('Año: ${vehicle['year']}'),
+                          Text('Descripción: ${vehicle['desc']}'),
+                          Text('Precio: ${vehicle['price']}'),
+                        ],
                       ),
-                      onPressed: () => editVehicle(index),
                     ),
-                    SizedBox(width: 20),
-                    IconButton(
-                      icon: Icon(Icons.delete, color: Colors.red, size: 30),
-                      onPressed: () => deleteVehicle(index),
+                    SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.remove_red_eye, color: Colors.blue),
+                          onPressed: () => viewVehicle(index),
+                        ),
+                        SizedBox(width: 20),
+                        IconButton(
+                          icon: Icon(
+                            Icons.edit,
+                            color: Colors.yellow[700],
+                            size: 30,
+                          ),
+                          onPressed: () => editVehicle(index),
+                        ),
+                        SizedBox(width: 20),
+                        IconButton(
+                          icon: Icon(Icons.delete, color: Colors.red, size: 30),
+                          onPressed: () => deleteVehicle(index),
+                        ),
+                      ],
                     ),
+                    SizedBox(height: 10),
                   ],
                 ),
-                SizedBox(height: 10),
-              ],
-            ),
+              );
+            },
           );
         },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: addNewVehicle,
-        backgroundColor: Color(0xFF417167), // Abre el formulario para agregar un vehículo
+        backgroundColor: Color(0xFF417167),
         child: Icon(Icons.add),
       ),
     );
