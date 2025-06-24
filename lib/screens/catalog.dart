@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:programacion_movil_proyecto/screens/CarDetails.dart';
-import 'package:programacion_movil_proyecto/screens/toyota.dart';
+import 'package:programacion_movil_proyecto/widgets/modal.dart';
 import 'edit_vehicle.dart';
 import "add_vehicle.dart";
 
@@ -43,25 +43,22 @@ class _CatalogScreenState extends State<CatalogScreen> {
   void deleteVehicle(int index) {
     showDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            content: Text('¿Está seguro que desea eliminar este registro?'),
-            actions: [
-              TextButton(
-                child: Text('Cancelar'),
-                onPressed: () => Navigator.pop(context),
-              ),
-              TextButton(
-                child: Text('Eliminar', style: TextStyle(color: Colors.orange)),
-                onPressed: () {
-                  setState(() {
+      builder: (context) => Modal(
+        icon: Icons.delete_forever_rounded,
+        backgroundColor: const Color.fromARGB(180, 113, 65, 65),
+        message:
+            "¿Se eliminará el vehículo, está seguro?",
+        iconColor: const Color.fromARGB(255, 113, 65, 65),
+        onConfirm: () {
+          setState(() {
                     vehicles.removeAt(index);
                   });
-                  Navigator.pop(context);
-                },
-              ),
-            ],
-          ),
+          Navigator.pop(context);
+        },
+        onCancel: () {
+          Navigator.pop(context);
+        },
+      ),
     );
   }
 
@@ -72,29 +69,6 @@ class _CatalogScreenState extends State<CatalogScreen> {
         builder: (context) => CarDetailScreen(car: vehicles[index]),
       ),
     );
-    /* showDialog(
-      context: context,
-      builder:
-          (_) => AlertDialog(
-            title: Text(vehicles[index]['brand']),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Millas Recorridas: ${vehicles[index]['miles']}'),
-                Text('Año: ${vehicles[index]['year']}'),
-                Text('Descripción: ${vehicles[index]['desc']}'),
-                Text('Precio: ${vehicles[index]['price']}'),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text('Cerrar'),
-              ),
-            ],
-          ),
-    ); */
   }
 
   void editVehicle(int index) async {
