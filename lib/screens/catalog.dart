@@ -94,19 +94,19 @@ class _CatalogScreenState extends State<CatalogScreen> {
   }
 
   void editVehicle(int index) async {
-    final updatedVehicle = await Navigator.push(
+    final shouldReload = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => EditVehicle(
           vehicle: vehicles[index],
-          docId: vehicles[index]['id'],  // <-- Pasas el id aquí
+          docId: vehicles[index]['id'],
         ),
       ),
     );
 
-    if (updatedVehicle != null) {
+    if (shouldReload == true) {
       setState(() {
-        vehicles[index] = updatedVehicle;
+        _loadVehicles = getData(); // 👈 Recarga desde Firestore
       });
 
       showDialog(
@@ -116,12 +116,8 @@ class _CatalogScreenState extends State<CatalogScreen> {
           backgroundColor: const Color.fromARGB(180, 117, 132, 227),
           message: "Edición de vehículo realizada exitosamente",
           iconColor: const Color.fromARGB(180, 117, 132, 227),
-          onConfirm: () {
-            Navigator.pop(context);
-          },
-          onCancel: () {
-            Navigator.pop(context);
-          },
+          onConfirm: () => Navigator.pop(context),
+          onCancel: () => Navigator.pop(context),
           show: false,
         ),
       );
