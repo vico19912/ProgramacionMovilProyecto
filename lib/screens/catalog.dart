@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:programacion_movil_proyecto/screens/CarDetails.dart';
 import 'package:programacion_movil_proyecto/screens/add_vehicle.dart';
 import 'package:programacion_movil_proyecto/screens/edit_vehicle.dart';
@@ -50,8 +51,8 @@ class _CatalogScreenState extends State<CatalogScreen> {
         iconColor: const Color.fromARGB(255, 113, 65, 65),
         onConfirm: () {
           setState(() {
-                    vehicles.removeAt(index);
-                  });
+            vehicles.removeAt(index);
+          });
           Navigator.pop(context);
         },
         onCancel: () {
@@ -62,7 +63,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
   }
 
   void viewVehicle(int index) async {
-    final viewVehicle = await Navigator.push(
+    await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => CarDetailScreen(car: vehicles[index]),
@@ -125,6 +126,15 @@ class _CatalogScreenState extends State<CatalogScreen> {
         title: Text('Catálogo'),
         centerTitle: true,
         backgroundColor: Color(0xFF417167),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: 'Cerrar Sesión',
+            onPressed: () async {
+              await FirebaseAuth.instance.signOut();
+            },
+          ),
+        ],
       ),
       body: FutureBuilder(
         future: _loadVehicles,
@@ -155,7 +165,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
                               fit: BoxFit.cover,
                             )
                           : Icon(Icons.image_not_supported, size: 70),
-                                            title: Text(
+                      title: Text(
                         vehicle['brand'],
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
