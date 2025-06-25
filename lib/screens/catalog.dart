@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:programacion_movil_proyecto/screens/CarDetails.dart';
+import 'package:programacion_movil_proyecto/screens/edit_vehicle.dart';
 import 'package:programacion_movil_proyecto/widgets/modal.dart';
-import 'edit_vehicle.dart';
 import "add_vehicle.dart";
 
 class CatalogScreen extends StatefulWidget {
@@ -33,7 +33,6 @@ class _CatalogScreenState extends State<CatalogScreen> {
             final data = doc.data();
             return data;
           }).toList();
-      print(datos[0]['imageUrl']);
       vehicles = datos;
     } catch (e) {
       print('Error al obtener datos: $e');
