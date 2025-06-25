@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:programacion_movil_proyecto/screens/catalog.dart';
 
 
 class LoginScreen extends StatefulWidget {
@@ -28,12 +29,22 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
+      UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
 
+      final user = userCredential.user;
+
+      if (user != null && mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const CatalogScreen()),
+        );
+      }
+
     } on FirebaseAuthException catch (e) {
+       print('🔥 FirebaseAuthException: ${e.code} - ${e.message}');
       String message = 'Ocurrió un error. Por favor, inténtalo de nuevo.';
       if (e.code == 'user-not-found' || e.code == 'wrong-password' || e.code == 'invalid-credential') {
         message = 'El correo o la contraseña son incorrectos.';
