@@ -5,6 +5,7 @@ class Modal extends StatelessWidget {
   final Color backgroundColor;
   final Color iconColor;
   final String message;
+  final bool show;
   final VoidCallback onConfirm;
   final VoidCallback onCancel;
 
@@ -15,7 +16,8 @@ class Modal extends StatelessWidget {
     required this.message,
     required this.onConfirm,
     required this.onCancel,
-    required this.iconColor
+    required this.iconColor,
+    required this.show
   });
 
   @override
@@ -58,7 +60,7 @@ class Modal extends StatelessWidget {
                     const SizedBox(height: 30),
                     Column(
                       children: [
-                        ElevatedButton(
+                        show ? ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.blue.shade800,
                             shape: RoundedRectangleBorder(
@@ -72,9 +74,10 @@ class Modal extends StatelessWidget {
                           ),
                           onPressed: onConfirm,
                           child:  Text("Sí",style:TextStyle(color: Colors.white60, fontWeight: FontWeight.bold),),
-                        ),
+                        )
+                        : SizedBox.shrink(),
                         const SizedBox(height: 10),
-                        ElevatedButton(
+                        show ? ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.red.shade700,
                             shape: RoundedRectangleBorder(
@@ -88,7 +91,8 @@ class Modal extends StatelessWidget {
                           ),
                           onPressed: onCancel,
                           child: const Text("No",style:TextStyle(color: Colors.white60, fontWeight: FontWeight.bold),),
-                        ),
+                        )
+                        : SizedBox.shrink(),
                       ],
                     ),
                   ],

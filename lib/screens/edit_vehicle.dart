@@ -51,13 +51,13 @@ class _EditVehicleState extends State<EditVehicle> {
 
   void saveChanges() {
     final updatedVehicle = {
-      'marca': widget.vehicle['brand'],
-      'modelo': widget.vehicle['model'],
-      'imageUrl': imagePath ?? widget.vehicle['imgUrl'][0],
-      'millas': millasController.text,
-      'anio': anioController.text,
-      'descripcion': descripcionController.text,
-      'precio': precioController.text,
+      'brand': widget.vehicle['brand'],
+      'model': widget.vehicle['model'],
+      'imgUrl'[0]: imagePath ?? widget.vehicle['imgUrl'][0],
+      'miles': millasController.text,
+      'year': anioController.text,
+      'desc': descripcionController.text,
+      'price': precioController.text,
     };
     Navigator.pop(context, updatedVehicle);
   }

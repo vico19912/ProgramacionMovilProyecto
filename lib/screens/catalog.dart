@@ -56,7 +56,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
         },
         onCancel: () {
           Navigator.pop(context);
-        },
+        }, show: true,
       ),
     );
   }
@@ -81,6 +81,26 @@ class _CatalogScreenState extends State<CatalogScreen> {
     if (updatedVehicle != null) {
       setState(() {
         vehicles[index] = updatedVehicle;
+        showDialog(
+          context: context,
+          builder: (context) => Modal(
+            icon: Icons.feedback_rounded,
+            backgroundColor: const Color.fromARGB(
+              180,
+              117,
+              132,
+              227,
+            ),
+            message: "Edición de vehículo realizada exitosamente",
+            iconColor: const Color.fromARGB(180, 117, 132, 227),
+            onConfirm: () {
+              Navigator.pop(context);
+            },
+            onCancel: () {
+              Navigator.pop(context);
+            }, show: false,
+          ),
+        );
       });
     }
   }

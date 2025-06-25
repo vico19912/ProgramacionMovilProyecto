@@ -201,7 +201,7 @@ class Home extends StatelessWidget {
                             },
                             onCancel: () {
                               Navigator.pop(context);
-                            },
+                            }, show: true,
                           ),
                         );
                       },
@@ -225,7 +225,7 @@ class Home extends StatelessWidget {
                             },
                             onCancel: () {
                               Navigator.pop(context);
-                            },
+                            }, show: true,
                           ),
                         );
                       },
@@ -253,7 +253,7 @@ class Home extends StatelessWidget {
                             },
                             onCancel: () {
                               Navigator.pop(context);
-                            },
+                            }, show: false,
                           ),
                         );
                       },
