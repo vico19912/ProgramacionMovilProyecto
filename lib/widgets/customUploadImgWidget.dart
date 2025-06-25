@@ -16,8 +16,13 @@ class _CustomUploadImgWidgetState extends State<CustomUploadImgWidget> {
   List<XFile>? _mediaFileList = [];
 
   Future<void> _selectImages() async {
+<<<<<<< HEAD
     final picker = ImagePicker();
     final List<XFile> pickedFileList = await picker.pickMultiImage();
+=======
+    final _picker = ImagePicker();
+    final List<XFile>? pickedFileList = await _picker.pickMultiImage();
+>>>>>>> e3846cc6db5ab1270407338ec69e0b87c4114f63
     if (pickedFileList != null && pickedFileList.isNotEmpty) {
       setState(() {
         _mediaFileList = pickedFileList;

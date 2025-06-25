@@ -50,7 +50,7 @@ class MyApp extends StatelessWidget {
 }
 
 class InitialNavigationScreen extends StatelessWidget {
-  const InitialNavigationScreen({super.key});
+  const InitialNavigationScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

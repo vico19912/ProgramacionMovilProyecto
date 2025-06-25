@@ -10,7 +10,11 @@ plugins {
 
 android {
     namespace = "com.example.programacion_movil_proyecto"
+<<<<<<< HEAD
     compileSdk = flutter.compileSdkVersion
+=======
+    compileSdk = 35
+>>>>>>> e3846cc6db5ab1270407338ec69e0b87c4114f63
     ndkVersion = "27.0.12077973"
 
     compileOptions {
@@ -27,7 +31,11 @@ android {
         applicationId = "com.example.programacion_movil_proyecto"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
+<<<<<<< HEAD
         minSdk = 23
+=======
+        minSdk = flutter.minSdkVersion
+>>>>>>> e3846cc6db5ab1270407338ec69e0b87c4114f63
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName

@@ -9,8 +9,11 @@ class FiatScreen extends StatelessWidget {
       },
   ];
 
+<<<<<<< HEAD
   const FiatScreen({super.key});
 
+=======
+>>>>>>> e3846cc6db5ab1270407338ec69e0b87c4114f63
   @override
   Widget build(BuildContext context) {
     return Scaffold(
