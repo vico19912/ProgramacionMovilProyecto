@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../adapters/cloudinary.dart'; // importa tu servicio
 
 class EditVehicle extends StatefulWidget {
   final Map<String, dynamic> vehicle;
@@ -53,31 +54,52 @@ class _EditVehicleState extends State<EditVehicle> {
 
 
   void saveChanges() async {
-    final updatedVehicle = {
-      'brand': widget.vehicle['brand'],
-      'model': widget.vehicle['model'],
-      'imgUrl': [imagePath ?? widget.vehicle['imgUrl'][0]],
-      'miles': int.tryParse(millasController.text) ?? widget.vehicle['miles'],
-      'year': int.tryParse(anioController.text) ?? widget.vehicle['year'],
-      'desc': descripcionController.text,
-      'price': double.tryParse(precioController.text) ?? widget.vehicle['price'],
-    };
+    final cloudinaryService = CloudinaryService();
 
     try {
+      String imageUrl = widget.vehicle['imgUrl'][0]; // URL actual por defecto
+
+      if (imagePath != null && !imagePath!.startsWith('http')) {
+        final xfileImage = XFile(imagePath!);
+        final urls = await cloudinaryService.uploadImagesAndGetUrl([xfileImage]);
+
+        if (urls.isNotEmpty) {
+          imageUrl = urls.first;
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error al subir la imagen')),
+          );
+          return;
+        }
+      }
+
+      final updatedVehicle = {
+        'brand': widget.vehicle['brand'],
+        'model': widget.vehicle['model'],
+        'imgUrl': [imageUrl],
+        'miles': int.tryParse(millasController.text) ?? widget.vehicle['miles'],
+        'year': int.tryParse(anioController.text) ?? widget.vehicle['year'],
+        'desc': descripcionController.text,
+        'price': double.tryParse(precioController.text) ?? widget.vehicle['price'],
+      };
+
+      // Agregamos el id para mantener la estructura
+      updatedVehicle['id'] = widget.docId;
+
       await FirebaseFirestore.instance
         .collection('Cars')
         .doc(widget.docId)
         .update(updatedVehicle);
-      
+
       Navigator.pop(context, updatedVehicle);
     } catch (e) {
-      // Manejar error
       print('Error actualizando vehículo en Firestore: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error al actualizar el vehículo')),
       );
     }
   }
+
 
   @override
   Widget build(BuildContext context) {

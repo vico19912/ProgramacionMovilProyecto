@@ -43,42 +43,43 @@ class _CatalogScreenState extends State<CatalogScreen> {
     }
   }
 
-  void deleteVehicle(int index) {
-    showDialog(
-      context: context,
-      builder: (context) => Modal(
-        icon: Icons.delete_forever_rounded,
-        backgroundColor: const Color.fromARGB(180, 113, 65, 65),
-        message: "¿Se eliminará el vehículo, está seguro?",
-        iconColor: const Color.fromARGB(255, 113, 65, 65),
-        onConfirm: () async {
-          final vehicleId = vehicles[index]['id'];
+    void deleteVehicle(int index) {
+      showDialog(
+        context: context,
+        builder: (context) => Modal(
+          icon: Icons.delete_forever_rounded,
+          backgroundColor: const Color.fromARGB(180, 113, 65, 65),
+          message: "¿Se eliminará el vehículo, está seguro?",
+          iconColor: const Color.fromARGB(255, 113, 65, 65),
+          onConfirm: () async {
+            final vehicleId = vehicles[index]['id'];
+            print('Intentando eliminar vehículo con id: $vehicleId');
 
-          try {
-            await FirebaseFirestore.instance
-                .collection('Cars')
-                .doc(vehicleId)
-                .delete();
+            try {
+              await FirebaseFirestore.instance
+                  .collection('Cars')
+                  .doc(vehicleId)
+                  .delete();
 
-            setState(() {
-              vehicles.removeAt(index);
-            });
+              setState(() {
+                vehicles.removeAt(index);
+              });
 
+              Navigator.pop(context);
+            } catch (e) {
+              print('Error al eliminar vehículo: $e');
+              Navigator.pop(context);
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Error al eliminar vehículo')),
+              );
+            }
+          },
+          onCancel: () {
             Navigator.pop(context);
-          } catch (e) {
-            print('Error al eliminar vehículo: $e');
-            Navigator.pop(context);
-
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Error al eliminar vehículo')),
-            );
-          }
-        },
-        onCancel: () {
-          Navigator.pop(context);
-        },
-        show: true,
-      ),
+          },
+          show: true,
+        ),
     );
   }
 
