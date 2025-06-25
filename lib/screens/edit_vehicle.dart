@@ -1,11 +1,13 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class EditVehicle extends StatefulWidget {
   final Map<String, dynamic> vehicle;
+  final String docId; // <-- nuevo parámetro con id 
 
-  const EditVehicle({super.key, required this.vehicle});
+  const EditVehicle({super.key, required this.vehicle, required this.docId});
 
   @override
   _EditVehicleState createState() => _EditVehicleState();
@@ -49,17 +51,32 @@ class _EditVehicleState extends State<EditVehicle> {
     }
   }
 
-  void saveChanges() {
+
+  void saveChanges() async {
     final updatedVehicle = {
       'brand': widget.vehicle['brand'],
       'model': widget.vehicle['model'],
-      'imgUrl'[0]: imagePath ?? widget.vehicle['imgUrl'][0],
-      'miles': millasController.text,
-      'year': anioController.text,
+      'imgUrl': [imagePath ?? widget.vehicle['imgUrl'][0]],
+      'miles': int.tryParse(millasController.text) ?? widget.vehicle['miles'],
+      'year': int.tryParse(anioController.text) ?? widget.vehicle['year'],
       'desc': descripcionController.text,
-      'price': precioController.text,
+      'price': double.tryParse(precioController.text) ?? widget.vehicle['price'],
     };
-    Navigator.pop(context, updatedVehicle);
+
+    try {
+      await FirebaseFirestore.instance
+        .collection('Cars')
+        .doc(widget.docId)
+        .update(updatedVehicle);
+      
+      Navigator.pop(context, updatedVehicle);
+    } catch (e) {
+      // Manejar error
+      print('Error actualizando vehículo en Firestore: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al actualizar el vehículo')),
+      );
+    }
   }
 
   @override

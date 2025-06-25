@@ -76,7 +76,7 @@ class CarDetailScreen extends StatelessWidget {
                     SizedBox(height: 10,),
                     infoItem('Millas:', car['miles'].toString()),
                     SizedBox(height: 10,),
-                    infoItem('Grúa incluida:', car['towTruck'] ? 'Si' : 'No'),
+                    infoItem('Grúa incluida:', (car['towTruck'] as bool? ?? false) ? 'Si' : 'No'),
                   ],
                 ),
               ),

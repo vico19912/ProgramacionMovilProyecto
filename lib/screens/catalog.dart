@@ -23,17 +23,20 @@ class _CatalogScreenState extends State<CatalogScreen> {
     _loadVehicles = getData();
   }
 
+
   Future<void> getData() async {
     final firestore = FirebaseFirestore.instance;
 
     try {
       final snapshot = await firestore.collection('Cars').get();
 
-      final datos =
-          snapshot.docs.map((doc) {
-            final data = doc.data();
-            return data;
-          }).toList();
+      final datos = snapshot.docs.map((doc) {
+        final data = doc.data();
+        data['id'] = doc.id; 
+
+        return data;
+      }).toList();
+
       vehicles = datos;
     } catch (e) {
       print('Error al obtener datos: $e');
@@ -46,21 +49,39 @@ class _CatalogScreenState extends State<CatalogScreen> {
       builder: (context) => Modal(
         icon: Icons.delete_forever_rounded,
         backgroundColor: const Color.fromARGB(180, 113, 65, 65),
-        message:
-            "¿Se eliminará el vehículo, está seguro?",
+        message: "¿Se eliminará el vehículo, está seguro?",
         iconColor: const Color.fromARGB(255, 113, 65, 65),
-        onConfirm: () {
-          setState(() {
-            vehicles.removeAt(index);
-          });
-          Navigator.pop(context);
+        onConfirm: () async {
+          final vehicleId = vehicles[index]['id'];
+
+          try {
+            await FirebaseFirestore.instance
+                .collection('Cars')
+                .doc(vehicleId)
+                .delete();
+
+            setState(() {
+              vehicles.removeAt(index);
+            });
+
+            Navigator.pop(context);
+          } catch (e) {
+            print('Error al eliminar vehículo: $e');
+            Navigator.pop(context);
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Error al eliminar vehículo')),
+            );
+          }
         },
         onCancel: () {
           Navigator.pop(context);
-        }, show: true,
+        },
+        show: true,
       ),
     );
   }
+
 
   void viewVehicle(int index) async {
     await Navigator.push(
@@ -75,49 +96,50 @@ class _CatalogScreenState extends State<CatalogScreen> {
     final updatedVehicle = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => EditVehicle(vehicle: vehicles[index]),
+        builder: (context) => EditVehicle(
+          vehicle: vehicles[index],
+          docId: vehicles[index]['id'],  // <-- Pasas el id aquí
+        ),
       ),
     );
 
     if (updatedVehicle != null) {
       setState(() {
         vehicles[index] = updatedVehicle;
-        showDialog(
-          context: context,
-          builder: (context) => Modal(
-            icon: Icons.feedback_rounded,
-            backgroundColor: const Color.fromARGB(
-              180,
-              117,
-              132,
-              227,
-            ),
-            message: "Edición de vehículo realizada exitosamente",
-            iconColor: const Color.fromARGB(180, 117, 132, 227),
-            onConfirm: () {
-              Navigator.pop(context);
-            },
-            onCancel: () {
-              Navigator.pop(context);
-            }, show: false,
-          ),
-        );
       });
+
+      showDialog(
+        context: context,
+        builder: (context) => Modal(
+          icon: Icons.feedback_rounded,
+          backgroundColor: const Color.fromARGB(180, 117, 132, 227),
+          message: "Edición de vehículo realizada exitosamente",
+          iconColor: const Color.fromARGB(180, 117, 132, 227),
+          onConfirm: () {
+            Navigator.pop(context);
+          },
+          onCancel: () {
+            Navigator.pop(context);
+          },
+          show: false,
+        ),
+      );
     }
   }
 
   void addNewVehicle() async {
-    final newVehicle = await Navigator.push(
+    final shouldReload = await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => AddVehicle()),
     );
 
-    if (newVehicle != null) {
+    if (shouldReload == true) { // se manda por prop 
       setState(() {
-        vehicles.add(newVehicle);
+        _loadVehicles = getData(); // vuelve a cargar desde Firestore cuando se agrega nuevo vehiculo 
       });
     }
   }
+
 
   @override
   Widget build(BuildContext context) {

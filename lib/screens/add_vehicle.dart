@@ -136,7 +136,7 @@ class _AddVehicleState extends State<AddVehicle> {
                   },
                   onCancel: () {
                     Navigator.pop(context);
-                    Navigator.pop(context); // Vuelve a la página anterior
+                    Navigator.pop(context, true); // Vuelve a la página anterior
                   },show: true,
                 ),
           );
