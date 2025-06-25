@@ -12,6 +12,8 @@ class KiaScreen extends StatelessWidget {
     },
   ];
 
+  const KiaScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

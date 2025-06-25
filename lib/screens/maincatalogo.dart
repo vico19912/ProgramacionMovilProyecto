@@ -13,6 +13,8 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -69,6 +71,8 @@ class HomeScreen extends StatelessWidget {
       'imagen': 'https://upload.wikimedia.org/wikipedia/commons/9/9d/Toyota_logo.png'
     },
   ];
+
+  const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

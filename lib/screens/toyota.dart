@@ -14,6 +14,8 @@ class ToyotaScreen extends StatelessWidget {
       },
   ];
 
+  const ToyotaScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

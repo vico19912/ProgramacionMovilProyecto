@@ -6,11 +6,11 @@ class CustomBooleanDropdown extends StatelessWidget {
   final String label;
 
   const CustomBooleanDropdown({
-    Key? key,
+    super.key,
     required this.initialValue,
     required this.onChanged,
     required this.label,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

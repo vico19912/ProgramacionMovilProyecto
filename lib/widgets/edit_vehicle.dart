@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class EditVehicle extends StatefulWidget {
   final Map<String, dynamic> vehicle;
 
-  const EditVehicle({Key? key, required this.vehicle}) : super(key: key);
+  const EditVehicle({super.key, required this.vehicle});
 
   @override
   _EditVehicleState createState() => _EditVehicleState();

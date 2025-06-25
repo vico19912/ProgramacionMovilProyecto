@@ -40,6 +40,8 @@ class HyundaiScreen extends StatelessWidget {
     },
   ];
 
+  const HyundaiScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
