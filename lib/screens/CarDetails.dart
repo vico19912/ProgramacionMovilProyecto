@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-
 class CarDetailScreen extends StatelessWidget {
-  const CarDetailScreen({super.key});
+  final Map<String, dynamic> car;
+  const CarDetailScreen({super.key, required this.car});
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +23,7 @@ class CarDetailScreen extends StatelessWidget {
                     ),
                     const SizedBox(width: 10),
                     Text(
-                      '${car.marca} ${car.modelo}',
+                      '${car['brand']}',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 18,
@@ -37,7 +37,7 @@ class CarDetailScreen extends StatelessWidget {
                 alignment: Alignment.center,
                 children: [
                   Image.network(
-                    car.imagenUrl,
+                    car['imgUrl'][0],
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) =>
                         Icon(Icons.broken_image, size: 100),
@@ -54,23 +54,31 @@ class CarDetailScreen extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               Text('Precio:', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-              Text(car.precio,
-                  style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF041716))),
+              Text(
+                car['price'].toString(),
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF041716),
+                ),
+              ),
               const SizedBox(height: 20),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    infoItem('Marca:', car.marca),
-                    infoItem('Modelo:', car.modelo),
-                    infoItem('Año:', car.anio),
-                    infoItem('Descripción:', car.descripcion),
-                    infoItem('Millas:', car.millas),
-                    infoItem('Grúa incluida:', car.gruaIncluida),
+                    infoItem('Marca:', car['brand']),
+                    SizedBox(height: 10),
+                    infoItem('Modelo:', car['model']),
+                    SizedBox(height: 10),
+                    infoItem('Año:', car['year'].toString()),
+                    SizedBox(height: 10),
+                    infoItem('Descripción:', car['desc']),
+                    SizedBox(height: 10),
+                    infoItem('Millas:', car['miles'].toString()),
+                    SizedBox(height: 10),
+                    infoItem('Grúa incluida:', car['towTruck'] ? 'Sí' : 'No'),
                   ],
                 ),
               ),
@@ -105,3 +113,5 @@ class CarDetailScreen extends StatelessWidget {
     );
   }
 }
+
+
